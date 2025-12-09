@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Story Game with Flask</title>
+</head>
+<body>
+    <h1>..</h1>
+    <p id="text"></p>
+    <img id="storyImage" src="" alt="" style="max-width: 400px; display:block; margin-bottom: 10px;">
+    <div id="choices"></div>
+
+    <script>
+        let storyData;
+        let currentNode;
+
+        // Fetch story JSON from Flask endpoint
+        fetch('/story2')
+            .then(response => response.json())
+            .then(data => {
+                storyData = data;
+                currentNode = storyData["start"];
+                showNode(currentNode);
+            })
+            .catch(err => console.error("Failed to load story2.json", err));
+
+        function showNode(node) {
+            document.getElementById("text").innerText = node.text;
+
+            const img = document.getElementById("storyImage");
+            if (node.image) {
+                img.src = node.image;
+                img.style.display = "block";
+            } else {
+                img.style.display = "none";
+            }
+
+            const choicesContainer = document.getElementById("choices");
+            choicesContainer.innerHTML = "";
+            for (let choice in node.choices) {
+                let button = document.createElement("button");
+                button.innerText = choice;
+                button.onclick = () => {
+                    currentNode = storyData[node.choices[choice]];
+                    showNode(currentNode);
+                };
+                choicesContainer.appendChild(button);
+            }
+        }
+    </script>
+</body>
+</html>
